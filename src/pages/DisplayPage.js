@@ -86,7 +86,7 @@ export function DisplayPage() {
       {/* Sidebar */}
       <aside className="w-1/4 bg-white shadow-md">
         <div className="flex flex-row justify-between items-center">
-          <h2 className="text-lg font-bold p-4 border-gray-200">Posts</h2>
+          <h2 className="text-lg font-bold p-4 border-gray-200">LifePages</h2>
           <button
             className="p-2 m-4 bg-green-500 text-white rounded-md shadow-md hover:bg-green-600"
             onClick={() => navigate("/")}
