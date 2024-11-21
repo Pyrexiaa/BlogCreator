@@ -34,22 +34,26 @@ export function HomePage() {
 
   const fetchData = async (inputData) => {
     let explanation = "";
+    let rowId = "";
     try {
       const data = await addRow("UserInformation", [inputData]);
 
       console.log("API response:", data);
+      // Return ID of the table created for update later
 
       explanation = data.rows[0].columns.content.choices[0].message.content;
+      rowId = data.rows[0].row_id;
+      console.log("Row Id extracted: ", rowId);
     } catch (err) {
       console.error("Error fetching explanation:", err);
       explanation = "Failed to fetch explanation.";
     }
-    return explanation;
+    return [explanation, rowId];
   };
 
   const fetchContent = async (inputData) => {
-    const content = await fetchData(inputData);
-    return content;
+    const [content, rowId] = await fetchData(inputData);
+    return [content, rowId];
   };
 
   const handleSubmit = async (e) => {
@@ -67,49 +71,25 @@ export function HomePage() {
 
     try {
       // Await the result of fetchContent
-      const generatedContent = await fetchContent(input_data);
+      const [generatedContent, rowId] = await fetchContent(input_data);
+      console.log("Row ID: ", rowId);
 
       // Pass the resolved content to another page
-      navigate("/display-blog", { state: generatedContent });
+      navigate("/edit-blog", { state: { generatedContent, rowId } });
     } catch (error) {
       console.error("Error fetching content:", error);
     }
   };
 
   return (
-    <div className="flex flex-col bg-gray-100 flex justify-center items-center w-full p-10">
+    <div className="flex flex-col bg-gray-100 justify-center items-center w-full p-10">
       <form
         className="w-full bg-white p-8 rounded shadow-md"
         onSubmit={handleSubmit}
       >
         <h1 className="text-2xl font-bold text-center mb-4">Create Blog</h1>
 
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">
-            Country
-          </label>
-          <input
-            type="text"
-            name="country"
-            value={formData.country}
-            onChange={handleChange}
-            className="w-full border rounded p-2"
-          />
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">
-            Location
-          </label>
-          <input
-            type="text"
-            name="location"
-            value={formData.location}
-            onChange={handleChange}
-            className="w-full border rounded p-2"
-          />
-        </div>
-
+        {/* First Row: Date */}
         <div className="mb-4">
           <label className="block text-gray-700 font-medium mb-2">Date</label>
           <input
@@ -121,19 +101,63 @@ export function HomePage() {
           />
         </div>
 
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">
-            Companion
-          </label>
-          <input
-            type="text"
-            name="companion"
-            value={formData.companion}
-            onChange={handleChange}
-            className="w-full border rounded p-2"
-          />
+        {/* Second Row: Country and Location */}
+        <div className="grid grid-cols-2 gap-4 mb-4">
+          <div>
+            <label className="block text-gray-700 font-medium mb-2">
+              Country
+            </label>
+            <input
+              type="text"
+              name="country"
+              value={formData.country}
+              onChange={handleChange}
+              className="w-full border rounded p-2"
+            />
+          </div>
+          <div>
+            <label className="block text-gray-700 font-medium mb-2">
+              Location
+            </label>
+            <input
+              type="text"
+              name="location"
+              value={formData.location}
+              onChange={handleChange}
+              className="w-full border rounded p-2"
+            />
+          </div>
         </div>
 
+        {/* Third Row: Profile and Companion */}
+        <div className="grid grid-cols-2 gap-4 mb-4">
+          <div>
+            <label className="block text-gray-700 font-medium mb-2">
+              Profile
+            </label>
+            <input
+              type="text"
+              name="profile"
+              value={formData.profile}
+              onChange={handleChange}
+              className="w-full border rounded p-2"
+            />
+          </div>
+          <div>
+            <label className="block text-gray-700 font-medium mb-2">
+              Companion
+            </label>
+            <input
+              type="text"
+              name="companion"
+              value={formData.companion}
+              onChange={handleChange}
+              className="w-full border rounded p-2"
+            />
+          </div>
+        </div>
+
+        {/* Last Row: Highlights */}
         <div className="mb-4">
           <label className="block text-gray-700 font-medium mb-2">
             Highlights
@@ -145,19 +169,6 @@ export function HomePage() {
             className="w-full border rounded p-2"
             rows="4"
           ></textarea>
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">
-            Profile
-          </label>
-          <input
-            type="text"
-            name="profile"
-            value={formData.profile}
-            onChange={handleChange}
-            className="w-full border rounded p-2"
-          />
         </div>
 
         <button
